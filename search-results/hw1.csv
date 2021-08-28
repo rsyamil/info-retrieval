@@ -1,0 +1,6 @@
+Queries, Number of Overlapping Results, Percent Overlap, Spearman Coefficient
+Query 1, 1, 10.0, 0.0
+Query 2, 3, 30.0, -4.25
+Query 3, 1, 10.0, 0.0
+Query 4, 2, 20.0, -36.0
+Averages, 1.75, 17.5, -10.0625

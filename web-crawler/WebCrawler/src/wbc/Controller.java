@@ -17,8 +17,8 @@ public class Controller {
 		config.setCrawlStorageFolder(crawlStorageFolder);
 		
 		// additional customizable parameters
-		config.setMaxDepthOfCrawling(3);
-		config.setMaxPagesToFetch(10);
+		config.setMaxDepthOfCrawling(16);
+		config.setMaxPagesToFetch(50);
 		config.setPolitenessDelay(2000);  //assume in ms
 		config.setUserAgentString("Emil");
 		config.setIncludeBinaryContentInCrawling(true); //get pdf and doc etc
@@ -36,9 +36,7 @@ public class Controller {
 		 * following links which are found in these pages
 		 */
 		
-		controller.addSeed("https://www.npr.org/");
-		controller.addSeed("https://slate.com/");
-		controller.addSeed("https://www.theatlantic.com/");
+		controller.addSeed("https://www.foxnews.com/");
 		
 		/*
 		 * Start the crawl. This is a blocking operation, meaning that the code will reach the line after this

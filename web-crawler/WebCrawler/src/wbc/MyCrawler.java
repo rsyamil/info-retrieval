@@ -15,7 +15,8 @@ import edu.uci.ics.crawler4j.url.WebURL;
 
 public class MyCrawler extends WebCrawler{
 
-	private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg" + "|png|mp3|mp3|zip|gz))$");
+    private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg"
+            + "|png|mp3|mp4|zip|gz))$");
 	/*
 	 * This method receives two parameters. The first parameter is the page
 	 * in which we have discovered this new url and the second parameter is
@@ -29,8 +30,10 @@ public class MyCrawler extends WebCrawler{
 	@Override
 	public boolean shouldVisit(Page referringPage, WebURL url) {
 		String href = url.getURL().toLowerCase();
-		//return !FILTERS.matcher(href).matches() && href.startsWith("http://www.viterbi.usc.edu/");
-		return true;
+		System.out.println("~~~~~~~~~href: " + href);
+		//return !FILTERS.matcher(href).matches() && href.startsWith("https://www.foxnews.com/");
+        return !FILTERS.matcher(href).matches()
+                && href.startsWith("https://www.foxnews.com/");
 	}
 	
 	/*

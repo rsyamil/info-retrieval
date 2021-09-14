@@ -2,6 +2,7 @@ package wbc;
 
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
+import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.fetcher.PageFetcher;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
@@ -18,8 +19,9 @@ public class Controller {
 		// additional customizable parameters
 		config.setMaxDepthOfCrawling(3);
 		config.setMaxPagesToFetch(10);
-		config.setPolitenessDelay(500);  //assume in ms
+		config.setPolitenessDelay(2000);  //assume in ms
 		config.setUserAgentString("Emil");
+		config.setIncludeBinaryContentInCrawling(true); //get pdf and doc etc
 		
 		/*
 		 * Instantiate the controller for this crawl
@@ -34,14 +36,19 @@ public class Controller {
 		 * following links which are found in these pages
 		 */
 		
-		controller.addSeed("http://www.viterbi.usc.edu/");
+		controller.addSeed("https://www.npr.org/");
+		controller.addSeed("https://slate.com/");
+		controller.addSeed("https://www.theatlantic.com/");
 		
 		/*
 		 * Start the crawl. This is a blocking operation, meaning that the code will reach the line after this
 		 * only when crawling is finished
 		 */
+		CrawlController.WebCrawlerFactory<WebCrawler> factory = MyCrawler::new;
 		
-		controller.start(MyCrawler.class, numberOfCrawlers);
+		controller.start(factory, numberOfCrawlers);
+		
+		System.out.println("DONEEEEEEEEEEEE");
 	}
 
 }

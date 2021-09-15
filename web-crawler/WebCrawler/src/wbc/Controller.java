@@ -7,17 +7,25 @@ import edu.uci.ics.crawler4j.fetcher.PageFetcher;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 
+import java.util.ArrayList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+
 public class Controller {
 	
 	public static final String SITE_CRAWL = "https://www.foxnews.com/";
+	public static Logger logger = LoggerFactory.getLogger(Controller.class);
 
 	public static void main(String[] args) throws Exception {
-		String crawlStorageFolder = "/data/crawl";
+		String crawlStorageFolder = "C:\\Users\\13108\\Desktop\\info-retrieval\\web-crawler\\WebCrawler\\data\\crawl";
 		String fetchcsv = "fetch_nytimes.csv";
 		String visitcsv = "visit_nytimes.csv";
 		String urlscsv = "urls_nytimes.csv";
 		
-		int numberOfCrawlers = 2;
+		int numberOfCrawlers = 3;
 		
 		CrawlConfig config = new CrawlConfig();
 		config.setCrawlStorageFolder(crawlStorageFolder);
@@ -51,8 +59,21 @@ public class Controller {
 		 * only when crawling is finished
 		 */
 		System.out.println("Begin crawling...");
-		CrawlController.WebCrawlerFactory<WebCrawler> factory = MyCrawler::new;
-		controller.start(factory, numberOfCrawlers);
+		logger.info("Begin crawling...");
+		
+		CrawlController.WebCrawlerFactory<WebCrawler> factory1 = MyCrawler::new;
+		controller.start(factory1, numberOfCrawlers);
+		
+		ArrayList<FetchObj> fetchObjList = new ArrayList<>();			//fetch_nytimes.csv
+		ArrayList<DownloadObj> downloadObjList = new ArrayList<>();		//visit_nytimes.csv
+		ArrayList<DiscoverObj> discoverObjList = new ArrayList<>();		//urls_nytimes.csv
+		
+		ArrayList<Object> crawlers = (ArrayList<Object>) controller.getCrawlersLocalData();
+		
+		/*
+		 * Get data from each of the crawler and process the data
+		 */
+		
 		
 		System.out.println("DONEEEEEEEEEEEE");
 	}

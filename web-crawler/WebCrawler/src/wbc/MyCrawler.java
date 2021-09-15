@@ -17,7 +17,7 @@ import edu.uci.ics.crawler4j.url.WebURL;
 public class MyCrawler extends WebCrawler{
 
     private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg"
-            + "|png|mp3|mp4|zip|gz))$");
+            + "|png|mp3|mp4|zip|gz|json))$");
 	/*
 	 * This method receives two parameters. The first parameter is the page
 	 * in which we have discovered this new url and the second parameter is
@@ -33,6 +33,7 @@ public class MyCrawler extends WebCrawler{
 		String href = url.getURL().toLowerCase();
 		System.out.println("~~~~~~~~~href: " + href);
 		//return !FILTERS.matcher(href).matches() && href.startsWith("https://www.foxnews.com/");
+		//!page.getContentType().contains(“application.json”)   //if they dont filter json because the link has no extension
         return !FILTERS.matcher(href).matches()
                 && href.startsWith("https://www.foxnews.com/");
 	}

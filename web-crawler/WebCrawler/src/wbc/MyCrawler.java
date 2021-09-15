@@ -1,5 +1,6 @@
 package wbc;
 
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.io.File;
@@ -7,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
 
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
@@ -14,10 +16,30 @@ import edu.uci.ics.crawler4j.parser.BinaryParseData;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.url.WebURL;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class MyCrawler extends WebCrawler{
 
-    private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg"
-            + "|png|mp3|mp4|zip|gz|json))$");
+	public static Logger logger = LoggerFactory.getLogger(MyCrawler.class);
+	
+    public final static Pattern FILTERS_ALLOWED = Pattern.compile(".*(\\.(html|doc|pdf|jpg|png|bmp|gif))$");
+    public final static Pattern FILTERS_END = Pattern.compile("(^$|.*\\/[^(\\/\\.)]*$)");
+    
+    public ArrayList<FetchObj> fetchObjList = new ArrayList<>();			//fetch_nytimes.csv
+    public ArrayList<DownloadObj> downloadObjList = new ArrayList<>();		//visit_nytimes.csv
+    public ArrayList<DiscoverObj> discoverObjList = new ArrayList<>();		//urls_nytimes.csv
+    
+	@Override
+	public MyCrawler getMyLocalData() {
+		return this;
+	}
+	
+	@Override
+	protected void handlePageStatusCode(WebURL webUrl, int statusCode, String statusDescription) {
+		fetchObjList.add(new FetchObj(webUrl.getURL(), statusCode));
+	}
+    
 	/*
 	 * This method receives two parameters. The first parameter is the page
 	 * in which we have discovered this new url and the second parameter is
@@ -27,15 +49,27 @@ public class MyCrawler extends WebCrawler{
 	 * have css, js, git, ... extensions and to only accept urls that start
 	 * with "http://www.viterbi.usc.edu/". In this case, we didn't need the
 	 * referringPage parameter to make the decision.
+	 * !page.getContentType().contains(“application.json”)   //if they dont filter json because the link has no extension
 	 */
 	@Override
 	public boolean shouldVisit(Page referringPage, WebURL url) {
+		URL verifyUrl = null;
 		String href = url.getURL().toLowerCase();
-		System.out.println("~~~~~~~~~href: " + href);
-		//return !FILTERS.matcher(href).matches() && href.startsWith("https://www.foxnews.com/");
-		//!page.getContentType().contains(“application.json”)   //if they dont filter json because the link has no extension
-        return !FILTERS.matcher(href).matches()
-                && href.startsWith("https://www.foxnews.com/");
+		
+		try {
+			verifyUrl = new URL(href);
+		} catch(Exception err) {
+			logger.error("URL not valid : " + href + err);
+		}
+		String verifyUrlHost = verifyUrl.getHost();
+		if (!verifyUrlHost.equals(Controller.SITE_CRAWL)) {
+			return false;
+		}
+		String verifyPath = url.getPath();
+		if (FILTERS_END.matcher(verifyPath).matches()) {
+			return true;
+		}
+        return FILTERS_ALLOWED.matcher(verifyPath).matches();
 	}
 	
 	/*
@@ -55,6 +89,13 @@ public class MyCrawler extends WebCrawler{
 		}
 
 		String url = page.getWebURL().getURL();
+		int nBytes = page.getContentData().length;
+		int nOutlinks = page.getParseData().getOutgoingUrls().size();
+		String contentType = page.getContentType();
+		
+		downloadObjList.add(new DownloadObj(url, nOutlinks, nBytes, contentType));
+		
+
 		System.out.println("URL: " + url);
 		fout.append("URL: " + url);
 		

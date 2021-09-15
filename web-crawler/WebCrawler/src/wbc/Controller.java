@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 public class Controller {
 	
-	public static final String SITE_CRAWL = "https://www.foxnews.com/";
+	public static final String SITE_CRAWL = "www.foxnews.com";
 	public static Logger logger = LoggerFactory.getLogger(Controller.class);
 
 	public static void main(String[] args) throws Exception {

@@ -1,0 +1,36 @@
+News site crawled: https://www.nytimes.com/
+Fetch Statistics
+===================
+# fetches attempted:20000
+# fetches succeeded:13743
+# fetches aborted or failed:6257
+Outgoing URLs
+===================
+Total URLs extracted:1321685
+# unique URLs extracted:287773
+# unique URLs within nytimes:159833
+# unique URLs outside nytimes:127940
+Status Codes
+===================
+200 OK:13743
+301 Moved Permanently:638
+302 Moved Temporarily:5595
+400 Bad Request:11
+401 Unauthorized Error:1
+403 Forbidden:2
+404 Not Found:7
+410 Gone:3
+File Sizes
+===================
+<1KB:0
+1KB~<10KB:19
+10KB~<100KB:2331
+100KB~<1MB:9850
+>=1MB:1518
+Content Type
+===================
+text/html:13700
+image/jpeg:2
+image/png:14
+image/gif:1
+application/rss+xml:1

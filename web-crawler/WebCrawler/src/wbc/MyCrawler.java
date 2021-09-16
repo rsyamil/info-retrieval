@@ -39,6 +39,7 @@ public class MyCrawler extends WebCrawler{
 	@Override
 	protected void handlePageStatusCode(WebURL webUrl, int statusCode, String statusDescription) {
 		fetchObjList.add(new FetchObj(webUrl.getURL(), statusCode));
+		System.out.println("Current size of fetch.csv" + fetchObjList.size());
 	}
     
 	/*

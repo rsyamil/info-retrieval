@@ -36,8 +36,8 @@ public class Controller {
 		
 		// additional customizable parameters
 		config.setMaxDepthOfCrawling(16);
-		config.setMaxPagesToFetch(50);					//change to 20000
-		config.setPolitenessDelay(2000);  				//assume in ms
+		config.setMaxPagesToFetch(20000);				//change to 20000
+		config.setPolitenessDelay(220);  				//assume in ms
 		config.setUserAgentString("Emil");
 		config.setIncludeBinaryContentInCrawling(true); //get pdf and doc etc
 		config.setIncludeHttpsPages(true);

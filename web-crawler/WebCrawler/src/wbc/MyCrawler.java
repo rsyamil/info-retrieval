@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import edu.uci.ics.crawler4j.crawler.Page;
@@ -24,7 +25,7 @@ public class MyCrawler extends WebCrawler{
 	public static Logger logger = LoggerFactory.getLogger(MyCrawler.class);
 	
     public final static Pattern FILTERS_ALLOWED = Pattern.compile(".*(\\.(html|doc|pdf|jpg|png|bmp|gif))$");
-    public final static Pattern FILTERS_END = Pattern.compile("(^$|.*\\/[^(\\/\\.)]*$)");
+    public final static Pattern FILTERS_END = Pattern.compile("(^$|.*\\/[^(\\/\\.)]*$)"); //for the link with no extension
     
     public ArrayList<FetchObj> fetchObjList = new ArrayList<>();			//fetch_nytimes.csv
     public ArrayList<DownloadObj> downloadObjList = new ArrayList<>();		//visit_nytimes.csv
@@ -81,7 +82,7 @@ public class MyCrawler extends WebCrawler{
 		
 		PrintWriter fout = null;
 		try {
-			fout = new PrintWriter(new FileOutputStream(new File("test.txt"),true));
+			fout = new PrintWriter(new FileOutputStream(new File("test.txt"), true));
 			fout.append("TEST OPEN");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -89,35 +90,59 @@ public class MyCrawler extends WebCrawler{
 		}
 
 		String url = page.getWebURL().getURL();
-		int nBytes = page.getContentData().length;
+		int nBytes = page.getContentData().length;				//in bytes
 		int nOutlinks = page.getParseData().getOutgoingUrls().size();
 		String contentType = page.getContentType();
+		if (contentType.toLowerCase().startsWith("text/html")) {
+			contentType = "text/html";
+		} 
 		
+		fout.append("URL: " + url +"\n");
+
 		downloadObjList.add(new DownloadObj(url, nOutlinks, nBytes, contentType));
 		
-
-		System.out.println("URL: " + url);
-		fout.append("URL: " + url);
-		
-		if (page.getParseData() instanceof BinaryParseData) {
+		Set<WebURL> webUrlLinks = page.getParseData().getOutgoingUrls();
+		for (WebURL webUrl:webUrlLinks) {
+			//String processUrl = webUrl.getURL().toLowerCase();
+			String processUrl = webUrl.getURL();
+			String okFlag = "N_OK";
 			
+			try {
+				URL verifyUrl = new URL(processUrl);
+				String verifyUrlHost = verifyUrl.getHost();
+				if (verifyUrlHost.equals(Controller.SITE_CRAWL)) {
+					okFlag = "OK";
+				}
+			} catch (MalformedURLException err) {
+				// TODO Auto-generated catch block
+				logger.error("URL not OK : " + processUrl + err);
+				if (processUrl.startsWith("https://" + Controller.SITE_CRAWL)) {
+					okFlag = "OK";
+				}
+				if (processUrl.startsWith("http://" + Controller.SITE_CRAWL)) {
+					okFlag = "OK";
+				}
+			}
+			
+			discoverObjList.add(new DiscoverObj(processUrl, okFlag));
 		}
-		
-		if (page.getParseData() instanceof HtmlParseData) {
-			HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
-			String text = htmlParseData.getText();
-			String html = htmlParseData.getHtml();
-			Set<WebURL> links = htmlParseData.getOutgoingUrls();
-			
-			System.out.println("Text length: " + text.length());
-			System.out.println("Html length: " + html.length());
-			System.out.println("Number of outgoing links: " + links.size());
-			
-			fout.append("Text length: " + text.length());
-			fout.append("Html length: " + html.length());
-			fout.append("Number of outgoing links: " + links.size());
+
+		// QC
+		boolean printToTxtDebug = false;
+		if (printToTxtDebug) {
+			if (page.getParseData() instanceof HtmlParseData || page.getParseData() instanceof BinaryParseData) {
+				HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
+				String text = htmlParseData.getText();
+				String html = htmlParseData.getHtml();
+				Set<WebURL> links = htmlParseData.getOutgoingUrls();
+				
+				fout.append("Text length: " + text.length() +"\n");
+				fout.append("Html length: " + html.length() +"\n");
+				fout.append("Number of outgoing links: " + links.size() +"\n");
+			}
 		}
 		fout.close();
+		
 	}
 	
 	

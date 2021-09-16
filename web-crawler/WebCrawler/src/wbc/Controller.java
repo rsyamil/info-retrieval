@@ -20,7 +20,7 @@ import java.io.PrintWriter;
 
 public class Controller {
 	
-	public static final String SITE_CRAWL = "www.foxnews.com";
+	public static final String SITE_CRAWL = "www.nytimes.com";
 	public static Logger logger = LoggerFactory.getLogger(Controller.class);
 
 	public static void main(String[] args) throws Exception {
@@ -29,7 +29,7 @@ public class Controller {
 		String visitcsv = "visit_nytimes.csv";
 		String urlscsv = "urls_nytimes.csv";
 		
-		int numberOfCrawlers = 3;
+		int numberOfCrawlers = 7;
 		
 		CrawlConfig config = new CrawlConfig();
 		config.setCrawlStorageFolder(crawlStorageFolder);
@@ -66,7 +66,9 @@ public class Controller {
 		logger.info("Begin crawling...");
 		
 		CrawlController.WebCrawlerFactory<WebCrawler> factory1 = MyCrawler::new;
-		controller.start(factory1, numberOfCrawlers);
+		//controller.start(factory1, numberOfCrawlers);
+		controller.startNonBlocking(factory1, 7);
+		controller.waitUntilFinish();
 		
 		ArrayList<FetchObj> fetchObjList = new ArrayList<>();			//fetch_nytimes.csv
 		ArrayList<DownloadObj> downloadObjList = new ArrayList<>();		//visit_nytimes.csv

@@ -83,7 +83,7 @@ public class MyCrawler extends WebCrawler{
 		PrintWriter fout = null;
 		try {
 			fout = new PrintWriter(new FileOutputStream(new File("test.txt"), true));
-			fout.append("TEST OPEN");
+			//fout.append("TEST OPEN");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -97,7 +97,7 @@ public class MyCrawler extends WebCrawler{
 			contentType = "text/html";
 		} 
 		
-		fout.append("URL: " + url +"\n");
+		//fout.append("URL: " + url +"\n");
 
 		downloadObjList.add(new DownloadObj(url, nOutlinks, nBytes, contentType));
 		

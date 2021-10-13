@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.apache.hadoop.*;
 
-public class CreateInvertedIndex {
+public class InvertedIndexJob {
 
 	public static class TokenizerMapper extends Mapper<LongWritable, Text, Text, Text>{
 		
@@ -75,7 +75,7 @@ public class CreateInvertedIndex {
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf, "Inverted Index");
 		
-		job.setJarByClass(CreateInvertedIndex.class);
+		job.setJarByClass(InvertedIndexJob.class);
 		job.setMapperClass(TokenizerMapper.class);
 		
 		//job.setCombinerClass(IntSumReducer.class);

@@ -15,12 +15,12 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-public class InvertedIndexJob {
+public class InvertedIndexBigrams {
 
 	public static class TokenizerMapper extends Mapper<LongWritable, Text, Text, Text>{
 		
 		private Text docId = new Text();
-		private Text word = new Text();
+		private Text bigram = new Text();
 
 		public void map(LongWritable key, Text value, Context context)
 			throws IOException, InterruptedException 
@@ -38,10 +38,14 @@ public class InvertedIndexJob {
 			//tokenizer - for all parsing
 			StringTokenizer tokensClean = new StringTokenizer(valueLowerCaseClean);
 			
+			String previous = tokensClean.nextToken();
+			
 			//get all the words with the document ID as the identifier
-			while (tokensClean.hasMoreTokens()) {				
-				word.set(tokensClean.nextToken());
-				context.write(word, docId);
+			while (tokensClean.hasMoreTokens()) {			
+				String current = tokensClean.nextToken();
+				bigram.set(previous + " " + current);
+				context.write(bigram, docId);
+				previous = current;
 			}
 		}
 	}
@@ -81,9 +85,9 @@ public class InvertedIndexJob {
 	public static void main(String[] args) throws Exception {
 		
 		Configuration conf = new Configuration();
-		Job job = Job.getInstance(conf, "Inverted Index");
+		Job job = Job.getInstance(conf, "Inverted Index Bigrams");
 		
-		job.setJarByClass(InvertedIndexJob.class);
+		job.setJarByClass(InvertedIndexBigrams.class);
 		job.setMapperClass(TokenizerMapper.class);
 		
 		//job.setCombinerClass(IntSumReducer.class);

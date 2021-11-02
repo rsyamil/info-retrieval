@@ -26,7 +26,15 @@
 		// In production code, use try/catch for any possible exceptions emitted 
 		// by searching (i.e. connection problems or query parsing error)
 		try {
-			$results = $solr->search($query, 0, $limit);
+			// Options to select Lucene or Pagerank
+			if ($GET['algorithm'] == "lucene") {
+				$results = $solr->search($query, 0, $limit);
+			} elseif ($GET['algorithm'] == "pagerank"){
+				$additionalParameters = array('sort' => 'pageRankFile desc');
+				$results = $solr->search($query, 0, $limit, $additionalParameters);
+			} else {
+				// Future algorithms
+			}
 		} catch (Exception $e) {
 			// In prod code, log or email error to an admin
 			// show special message to the user but for this example
@@ -46,8 +54,75 @@
 		<form accept-charset="utf-8" method="get">
 			<label for="q"> Search: </label>
 			<input id="q" name="q" type="text" value="<?php echo htmlspecialchars($query, ENT_QUOTES, 'utf-8'); ?>" />
+			
+			<input type="radio" name="algorithm" value="pagerank" <?php if (isset($_REQUEST['algorithm']) && $_REQUEST['algorithm'] == 'pagerank') {
+						echo 'checked = "checked"';
+					}
+				?>> PageRank
+			<input type="radio" name="algorithm" value="lucene" <?php if (isset($_REQUEST['algorithm']) && $_REQUEST['algorithm'] == 'lucene') {
+						echo 'checked = "checked"';
+					}
+				?>> Lucene
+			
 			<input type="submit" />
 		</form>
+		
+		<?php
+		// Display results
+		if ($results) {
+			$total = (int) $results->response->numFound;
+			$start = min(1, $total);
+			$end = min($limit, $total);
+			
+			// Iteratre results documents
+			$csv = array_map('str_getcsv', file('URLtoHTML_nytimes_news.csv'));			//UPDATE THIS
+		?>
+			<div>Results <?php echo $start; ?> - <?php echo $end; ?> of <?php echo $total; ?>:</div>
+			<ol>
+			
+			<?php
+			foreach ($results->response->docs as $doc) {
+				$title = $doc->title;
+				$url = $doc->url;
+				$id = $doc->id;
+				$desc = $doc->description;
+				
+				if ($desc == null || $desc == "") {
+					$desc = "null"
+				}
+				
+				// If URL not available, find from csv file
+				if ($url == null || $url == "") {
+					foreach ($csv as $row) {
+						
+						$filenamecsv = $row[0]
+						$urlnamecsv = $row[1]
+						
+						$idcompare = "dir" + $filenamecsv;								//UPDATE THIS
+						if ($idcompare == $id) {
+							$url = $urlnamecsv;
+							unset($row);
+							break;
+						}
+					}
+				}
+				
+				echo "Title 		: <a href = '$url'>$title</a></br>";
+				echo "URL 			: <a href = '$url'>$url</a></br>";
+				echo "ID			: $id</br>";
+				echo "Description	: $desc</br>";
+			}
+		}
+			?>		
 	</body>
 </html>
+
+
+
+
+
+
+
+
+
 

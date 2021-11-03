@@ -12,11 +12,11 @@
 		// which is usually most easily accomplished by placing in the
 		// same directory as this script ( . or current directory is a default
 		// php include path entry in the php.ini)
-		require_once('Apache/Solr/Service.php')             						//UPDATE THIS
+		require_once('Apache/Solr/Service.php');
 		
 		// Create a new Solr Service instance - host, port and corename
 		// paths (all defaults in this example)
-		$solr = new Apache_Solr_Service('localhost', 8983, '/solr/core_name/');   	//UPDATE THIS
+		$solr = new Apache_Solr_Service('localhost', 8983, '/solr/myexample/'); 
 		
 		// If magic quotes is enabled then stripslashes are needed
 		if (get_magic_quotes_gpc() == 1) {
@@ -27,14 +27,15 @@
 		// by searching (i.e. connection problems or query parsing error)
 		try {
 			// Options to select Lucene or Pagerank
-			if ($GET['algorithm'] == "lucene") {
+			if ($_REQUEST['algorithm'] == "lucene") {
 				$results = $solr->search($query, 0, $limit);
-			} elseif ($GET['algorithm'] == "pagerank"){
+			} elseif ($_REQUEST['algorithm'] == "pagerank"){
 				$additionalParameters = array('sort' => 'pageRankFile desc');
 				$results = $solr->search($query, 0, $limit, $additionalParameters);
 			} else {
 				// Future algorithms
 			}
+			
 		} catch (Exception $e) {
 			// In prod code, log or email error to an admin
 			// show special message to the user but for this example
@@ -67,38 +68,45 @@
 			<input type="submit" />
 		</form>
 		
+	<?php
+	// display results
+	if ($results) {
+		
+		// Iteratre results documents
+		$csv = array_map('read_csv', file('/home/emil/Desktop/NYTIMES/URLtoHTML_nytimes_news.csv'));			
+		
+		$total = (int) $results->response->numFound;
+		$start = min(1, $total);
+		$end = min($limit, $total);
+	?>
+		<div>Results <?php echo $start; ?> - <?php echo $end;?> of <?php echo $total; ?>:</div>
+		<ol>
 		<?php
-		// Display results
-		if ($results) {
-			$total = (int) $results->response->numFound;
-			$start = min(1, $total);
-			$end = min($limit, $total);
-			
-			// Iteratre results documents
-			$csv = array_map('str_getcsv', file('URLtoHTML_nytimes_news.csv'));			//UPDATE THIS
+		// iterate result documents
+		foreach ($results->response->docs as $doc) {
 		?>
-			<div>Results <?php echo $start; ?> - <?php echo $end; ?> of <?php echo $total; ?>:</div>
-			<ol>
-			
-			<?php
-			foreach ($results->response->docs as $doc) {
+		<li>
+			<table style="border: 1px solid black; text-align: left">
+			<tr>
+			<td>
+				<?php
 				$title = $doc->title;
 				$url = $doc->url;
 				$id = $doc->id;
 				$desc = $doc->description;
 				
 				if ($desc == null || $desc == "") {
-					$desc = "null"
+					$desc = "null";
 				}
 				
 				// If URL not available, find from csv file
 				if ($url == null || $url == "") {
 					foreach ($csv as $row) {
 						
-						$filenamecsv = $row[0]
-						$urlnamecsv = $row[1]
+						$filenamecsv = $row[0];
+						$urlnamecsv = $row[1];
 						
-						$idcompare = "dir" + $filenamecsv;								//UPDATE THIS
+						$idcompare = "/home/emil/Desktop/NYTIMES/nytimes/" + $filenamecsv;
 						if ($idcompare == $id) {
 							$url = $urlnamecsv;
 							unset($row);
@@ -111,9 +119,19 @@
 				echo "URL 			: <a href = '$url'>$url</a></br>";
 				echo "ID			: $id</br>";
 				echo "Description	: $desc</br>";
-			}
+				?>
+			</td>
+			</tr>
+			</table>
+		</li>
+		<?php
 		}
-			?>		
+		?>
+		</ol>
+	<?php
+	}
+	?>
+
 	</body>
 </html>
 

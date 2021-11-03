@@ -86,14 +86,16 @@
 		foreach ($results->response->docs as $doc) {
 		?>
 		<li>
-			<table style="border: 1px solid black; text-align: left">
+			<table style="border: 1px solid black; text-align: left; width:100%">
 			<tr>
 			<td>
 				<?php
 				$title = $doc->title;
-				$url = $doc->url;
+				$url = $doc->og_url;
+				//$url = $doc->url;
 				$id = $doc->id;
-				$desc = $doc->description;
+				$desc = $doc->og_description;
+				//$desc = $doc->description;
 				
 				if ($desc == null || $desc == "") {
 					$desc = "null";

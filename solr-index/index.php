@@ -71,10 +71,7 @@
 	<?php
 	// display results
 	if ($results) {
-		
-		// Iteratre results documents
-		$csv = array_map('read_csv', file('/home/emil/Desktop/NYTIMES/URLtoHTML_nytimes_news.csv'));			
-		
+
 		$total = (int) $results->response->numFound;
 		$start = min(1, $total);
 		$end = min($limit, $total);
@@ -97,21 +94,34 @@
 				$desc = $doc->og_description;
 				//$desc = $doc->description;
 				
-				if ($desc == null || $desc == "") {
+				if ($desc == "") {
 					$desc = "null";
 				}
 				
+				// Iteratre results documents
+				$csv = array_map('str_getcsv', file('/home/emil/Desktop/NYTIMES/URLtoHTML_nytimes_news.csv'));
+				
 				// If URL not available, find from csv file
-				if ($url == null || $url == "") {
-					foreach ($csv as $row) {
+				if ($url == "") {                                   //update
+					foreach ($csv as $rows => $row) {
 						
 						$filenamecsv = $row[0];
 						$urlnamecsv = $row[1];
+						$localpath = "/home/emil/Desktop/NYTIMES/nytimes/".$filenamecsv;
 						
-						$idcompare = "/home/emil/Desktop/NYTIMES/nytimes/" + $filenamecsv;
-						if ($idcompare == $id) {
+						//echo "verify</br>";
+						//echo "Test file name $row[0]</br>";
+						//echo "Test file name $localpath</br>";
+						//echo "Test url name $row[1]</br>";
+						
+						if (strcmp((string)$localpath, (string)$id) == 0) {
+							
+							//echo strcmp((string)$localpath, (string)$id);
+							//echo "same</br>";
+							//echo "Local path:  $localpath</br>";
+							//echo "Id:  $id</br>";
+							
 							$url = $urlnamecsv;
-							unset($row);
 							break;
 						}
 					}

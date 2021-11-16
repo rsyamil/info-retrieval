@@ -8,3 +8,6 @@ Information Retrieval and Web Search Engines Asssignments
 | `web-crawler`      | `Crawler4j` to crawl news sites |
 | `hadoop-index`     | `Hadoop` and `GCP App Engine` to create inverted index |
 | `solr-index`       | `Solr` to investigate ranking strategies between `Lucene` and Pagerank algorithm |
+| `enhanced-solr`    | `solr-index` enhanced with autocomplete and spellchecking features |
+
+

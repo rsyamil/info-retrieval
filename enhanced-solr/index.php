@@ -14,7 +14,7 @@
 	$results 	= false;
 	$query 		= isset($_REQUEST['q']) ? $_REQUEST['q']: false;
 	$spellCheck	= false;
-	$seenSuggestion	= isset($_REQUEST['searchOriginal']) ? $_REQUEST['searchOriginal']: false;
+	$seenSuggestion	= isset($_REQUEST['hiddencontainer']) ? $_REQUEST['hiddencontainer']: "no";
 	
 	$queryTokensProcessed = array();
 	$queryTokensOriginal = array();
@@ -86,13 +86,30 @@
 
 <html>
 	<head>
+	
+		<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+		
+		<script>
+		
+			function clickLink(){
+				//alert("Click on the link event is triggered.");
+				
+				//document.getElementById("hiddencontainer").value = "yes";
+				
+				//alert("Done");
+			};
+		
+		</script>
+	
 		<title> PHP Solr Client Example </title>
 	</head>
 	
 	<body>
 		<h1> PHP Solr Client Example </h1>
-		<form accept-charset="utf-8" method="get">
+
+		<form accept-charset="utf-8" method="get" id="search_form">
 			<label for="q"> Search: </label>
+			<input type="hidden" id="hiddencontainer" name="hiddencontainer" value="<?php echo htmlspecialchars($seenSuggestion, ENT_QUOTES, 'utf-8'); ?>"/>
 			<input id="q" name="q" type="text" value="<?php echo htmlspecialchars($query, ENT_QUOTES, 'utf-8'); ?>" />
 			
 			<input type="radio" name="algorithm" value="pagerank" <?php if (isset($_REQUEST['algorithm']) && $_REQUEST['algorithm'] == 'pagerank') {
@@ -108,45 +125,54 @@
 		</form>
 		
 	<?php
-	if ($spellCheck && !$seenSuggestion) {
-		
-		// form the original and corrected search strings
-		$algo = $_REQUEST['algorithm'];
-		$qCorrected = implode("+", $queryTokensProcessed);
-		$qOriginal = implode("+", $queryTokensOriginal);
-		$searchqCorrected = "?q=".$qCorrected."&algorithm=".$algo;
-		$searchqOriginal = "?q=".$qOriginal."&algorithm=".$algo;
-		
-		//echo "Original search			: $searchqOriginal</br>";
-		//echo "Corrected search			: $searchqCorrected</br>";
+	//echo "seenSuggestion			: $seenSuggestion</br>";
+	
+	$notSeen = strcmp($seenSuggestion, "no") == 0;
+	if ($notSeen) {
+		if ($spellCheck) {
+			
+			// form the original and corrected search strings
+			$algo = $_REQUEST['algorithm'];
+			$hc = $_REQUEST['hiddencontainer'];
+			$qCorrected = implode("+", $queryTokensProcessed);
+			$qOriginal = implode("+", $queryTokensOriginal);
+			$searchqCorrected = "?hiddencontainer=".$hc."&q=".$qCorrected."&algorithm=".$algo;
+			$searchqOriginal = "?hiddencontainer="."yes"."&q=".$qOriginal."&algorithm=".$algo;
+			
+			//echo "Original search			: $searchqOriginal</br>";
+			//echo "Corrected search			: $searchqCorrected</br>";
 
-		?>
-		<div>
-		Showing results for <a id="searchCorrected" href=<?php echo $searchqCorrected; ?>> <?php echo $queryCorrected; ?></a></br>
-		Search instead for <a id="searchOriginal" href=<?php echo $searchqOriginal; ?>> <?php echo $query; ?></a></br></br>
-		</div>		
-		<?php
+			?>
+			<div>
+			Showing results for <a id="searchCorrected" href=<?php echo $searchqCorrected; ?>> <?php echo $queryCorrected; ?></a></br>
+			Search instead for <a onclick = "clickLink()" id="hiddencontainerlink" href=<?php echo $searchqOriginal; ?>> <?php echo $query; ?></a></br></br>
+			</div>		
+			<?php
+		}
 	}	
 	?>
 	
 	<?php
-	if ($spellCheck && $seenSuggestion) {
-		
-		// form the original and corrected search strings
-		$algo = $_REQUEST['algorithm'];
-		$qCorrected = implode("+", $queryTokensProcessed);
-		$qOriginal = implode("+", $queryTokensOriginal);
-		$searchqCorrected = "?q=".$qCorrected."&algorithm=".$algo;
-		$searchqOriginal = "?q=".$qOriginal."&algorithm=".$algo;
-		
-		//echo "Original search			: $searchqOriginal</br>";
-		//echo "Corrected search			: $searchqCorrected</br>";
+	//echo "seenSuggestion			: $seenSuggestion</br>";
+	
+	$seen = strcmp($seenSuggestion, "yes") == 0;
+	if ($seen) {
+		if ($spellCheck) {
+			
+			// form the original and corrected search strings
+			$algo = $_REQUEST['algorithm'];
+			$hc = $_REQUEST['hiddencontainer'];
+			$qCorrected = implode("+", $queryTokensProcessed);
+			$searchqCorrected = "?hiddencontainer="."no"."&q=".$qCorrected."&algorithm=".$algo;
 
-		?>
-		<div>
-		Did you mean: <a id="searchCorrected" href=<?php echo $searchqCorrected; ?>> <?php echo $queryCorrected; ?></a></br>
-		</div>		
-		<?php
+			//echo "Corrected search			: $searchqCorrected</br>";
+			
+			?>
+			<div>
+			Did you mean: <a id="searchCorrected" href=<?php echo $searchqCorrected; ?>> <?php echo $queryCorrected; ?></a></br>
+			</div>		
+			<?php
+		}
 	}	
 	?>
 		

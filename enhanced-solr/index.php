@@ -61,16 +61,21 @@
 		}
 		
 		//echo "Spell check active	: $spellCheck</br>";
+		$finalq = $queryCorrected;
+		$seen = strcmp($seenSuggestion, "yes") == 0;
+		if ($seen) {
+			$finalq = $query;
+		}
 		
 		// In production code, use try/catch for any possible exceptions emitted 
 		// by searching (i.e. connection problems or query parsing error)
 		try {
 			// Options to select Lucene or Pagerank
 			if ($_REQUEST['algorithm'] == "lucene") {
-				$results = $solr->search($query, 0, $limit);
+				$results = $solr->search($finalq, 0, $limit);
 			} elseif ($_REQUEST['algorithm'] == "pagerank"){
 				$additionalParameters = array('sort' => 'pageRankFile desc');
-				$results = $solr->search($query, 0, $limit, $additionalParameters);
+				$results = $solr->search($finalq, 0, $limit, $additionalParameters);
 			} else {
 				// Future algorithms
 			}

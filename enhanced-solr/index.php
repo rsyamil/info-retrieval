@@ -192,6 +192,12 @@
 		<div>Results <?php echo $start; ?> - <?php echo $end;?> of <?php echo $total; ?>:</div>
 		<ol>
 		<?php
+		
+		if ($total == 0) {
+			echo "No results containing all your search terms were found.</br>";
+			echo "Your search - $finalq - did not match any documents.</br>";
+		}
+		
 		// iterate result documents
 		foreach ($results->response->docs as $doc) {
 		?>

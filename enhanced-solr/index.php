@@ -92,18 +92,79 @@
 <html>
 	<head>
 	
-		<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+		<!-- https://www.tutorialspoint.com/jqueryui/jqueryui_environment_setup.htm -->
+		<link href = "https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css"
+		   rel = "stylesheet">
+		<script src = "https://code.jquery.com/jquery-1.10.2.js"></script>
+		<script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 		
 		<script>
-		
-			function clickLink(){
-				//alert("Click on the link event is triggered.");
+			$(function() {
+
+				//find suggestions based on second word if there are two words
+				//set suggest.count in solrconfig.xml to be > 5 in case the same/unaccepted word is suggested
+				var recommendations = [];
 				
-				//document.getElementById("hiddencontainer").value = "yes";
+				$("#q").autocomplete({
+					minLength:1,
+					source: function(request, response) {
+						var firstWord = "";
+						var secondWord = "";
+						var query = $("#q").val().toLowerCase();
+						var spaceIndex = query.lastIndexOf(" ");
+												
+						//if there are multiple words
+						if (spaceIndex != -1 && query.length - 1 > spaceIndex) {
+							firstWord = query.substr(0, spaceIndex);
+							secondWord = query.substr(spaceIndex + 1);
+						//if there is only one word
+						} else {
+							secondWord = query;
+						}
 				
-				//alert("Done");
-			};
-		
+						$.ajax({
+							url: "http://localhost:8983/solr/myexample/suggest?q=" + secondWord + "&wt=json",
+							dataType: "jsonp",
+							jsonp: "json.wrf",
+							async: true,
+							success: function(data) {
+								var result = (JSON.parse(JSON.stringify(data.suggest.suggest)))[secondWord].suggestions;
+								var maxResults = 5;
+								
+								//traverse the results list result.length time until collect maxResults results (i) 
+								var j = 0;
+								
+								for(var i = 0; i < maxResults && j < result.length; i++, j++) {
+									
+									var term = result[j].term;
+									
+									//exclude suggestion if it contains the following "._:"
+									if (term.includes(".") || term.includes("_") || term.includes(":")) {
+										i = i - 1;
+										continue;
+									}
+
+									//do not suggest the query itself
+									if (term == secondWord) {
+										i = i - 1;
+										continue;
+									}
+									
+									//add to recommendations
+									if (firstWord == "") {
+										recommendations[i] = term;
+									} else {
+										recommendations[i] = firstWord + " " + term;
+									}
+								}
+								
+								//console.log(recommendations);
+								response(recommendations);
+							}
+						});
+					}
+				});
+			});
 		</script>
 	
 		<title> PHP Solr Client Example </title>
@@ -150,7 +211,7 @@
 			?>
 			<div>
 			Showing results for <a id="searchCorrected" href=<?php echo $searchqCorrected; ?>> <?php echo $queryCorrected; ?></a></br>
-			Search instead for <a onclick = "clickLink()" id="hiddencontainerlink" href=<?php echo $searchqOriginal; ?>> <?php echo $query; ?></a></br></br>
+			Search instead for <a id="hiddencontainerlink" href=<?php echo $searchqOriginal; ?>> <?php echo $query; ?></a></br></br>
 			</div>		
 			<?php
 		}
